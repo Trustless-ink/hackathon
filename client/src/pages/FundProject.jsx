@@ -1,7 +1,7 @@
 import './single.scss'
-import Sidebar from '../../components/sidebar/Sidebar'
+import Sidebar from '../components/sidebar/Sidebar'
 
-const NewProject = () => {
+const FundProject = () => {
   return (
     <div className="single">
       <Sidebar />
@@ -9,14 +9,15 @@ const NewProject = () => {
         <div className="top">
           <center>
             <div className="left">
-              <label>Project Name</label>
+              <h1>Fund Project</h1>
+              <label>Project ID</label>
               <br />
               <input type="text" className="cool-button" />
               <br />
               <br />
-              <label>Description</label>
+              <label>Funding Amount in ETH</label>
               <br />
-              <input type="text" className="cool-button" />
+              <input type="number" className="cool-button" />
               <br />
               <br />
               <h1 className="cool-button">Submit</h1>
@@ -29,4 +30,4 @@ const NewProject = () => {
   )
 }
 
-export default NewProject
+export default FundProject

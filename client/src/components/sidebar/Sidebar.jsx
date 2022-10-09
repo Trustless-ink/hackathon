@@ -22,29 +22,25 @@ const Sidebar = () => {
               <span>New Project</span>
             </li>
           </Link>
-          <Link to="/seeprojects" style={{ textDecoration: 'none' }}>
+          <Link to="/seeproject" style={{ textDecoration: 'none' }}>
             <li>
               <DashboardIcon className="icon" />
               <span>See Projects</span>
             </li>
           </Link>
 
-          <Link to="/fundprojects" style={{ textDecoration: 'none' }}>
+          <Link to="/fundproject" style={{ textDecoration: 'none' }}>
             <li>
               <CreditCardIcon className="icon" />
               <span>Fund Projects</span>
             </li>
           </Link>
-
-          <Link to="/logout" style={{ textDecoration: 'none' }}>
-            <li>
-              <InputOutlinedIcon className="icon" />
-              <span>Logout</span>
-            </li>
-          </Link>
         </ul>
       </div>
-      <div className="bottom"></div>
+      <div className="bottom">
+        <InputOutlinedIcon className="icon" />
+        <span>Logout</span>
+      </div>
     </div>
   )
 }
