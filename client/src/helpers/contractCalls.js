@@ -132,3 +132,15 @@ export const getFundsAvailability = async (tokenID) => {
 
   return fundsAvailable;
 };
+
+export const withdrawFundingCall = async (contextValue, tokenID) => {
+  const web3 = await getWeb3();
+  const Contract_instance = new web3.eth.Contract(
+    contractABI.abi,
+    contractAddress
+  );
+
+  await Contract_instance.methods
+    .withdrawFunds(tokenID)
+    .send({ from: contextValue.web3.accounts[0] });
+};

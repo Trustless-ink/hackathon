@@ -4,6 +4,7 @@ import {
   getAllProjects,
   getFounderProjects,
   getFundsAvailability,
+  withdrawFundingCall,
 } from '../helpers/contractCalls'
 import { useState, useEffect, useContext } from 'react'
 import Context from '../helpers/Context'
@@ -31,6 +32,10 @@ const FounderPortal = () => {
     }
     seeProjects()
   }, [contextValue])
+
+  const withdrawFunding = async (tokenID) => {
+    await withdrawFundingCall(contextValue, tokenID)
+  }
 
   return (
     <div className="single">
@@ -71,7 +76,16 @@ const FounderPortal = () => {
                         100
                       }
                     />
+                    <br />
+                    {fundsAvailable[key] === '0' && (
+                      <div
+                        onClick={async () => await withdrawFunding(projectID)}
+                      >
+                        <h1 className="cool-button">Disburse Funding</h1>
+                      </div>
+                    )}
                   </div>
+                  <br />
                 </div>
               )
             })}
