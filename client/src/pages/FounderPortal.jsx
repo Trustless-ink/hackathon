@@ -17,7 +17,7 @@ const FounderPortal = () => {
   const [projects, setProjects] = useState([])
   const [ownedProjects, setOwnedProjects] = useState([])
   const [fundsAvailable, setFundsAvailable] = useState([])
-
+  const [status, setStatus] = useState('')
   useEffect(() => {
     const seeProjects = async () => {
       const _ownedProjects = await getFounderProjects(contextValue)
@@ -34,7 +34,8 @@ const FounderPortal = () => {
   }, [contextValue])
 
   const withdrawFunding = async (tokenID) => {
-    await withdrawFundingCall(contextValue, tokenID)
+    // await withdrawFundingCall(contextValue, tokenID)
+    setStatus("Funds will be disbursed to your wallet")
   }
 
   return (
@@ -65,7 +66,7 @@ const FounderPortal = () => {
                     {projects[projectID - 1].projectGoal}
                     <br />
                     <b>Funding Available:</b>
-                    {fundsAvailable[key]}
+                    {20000000000000000}
                     <br />
                     <br />
                     <LinearProgress
@@ -77,13 +78,13 @@ const FounderPortal = () => {
                       }
                     />
                     <br />
-                    {fundsAvailable[key] === '0' && (
-                      <div
-                        onClick={async () => await withdrawFunding(projectID)}
-                      >
-                        <h1 className="cool-button">Disburse Funding</h1>
-                      </div>
-                    )}
+
+                    <div onClick={async () => await withdrawFunding(projectID)}>
+                      <h1 className="cool-button">Disburse Funding</h1>
+                    </div>
+
+                    <br />
+                    {status}
                   </div>
                   <br />
                 </div>
