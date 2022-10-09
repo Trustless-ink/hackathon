@@ -3,8 +3,11 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import "./Libs/UInt256Array.sol";
 
 contract Trustless is ERC1155URIStorage {
+  using Uint256Array for Uint256Array.Uint256s;
+
   event ProjectCreated(address indexed fundraiser, uint project, uint amount);
   event Contribution(address indexed contributor, uint project, uint amount);
   event GoalAchieved(address indexed fundraiser, uint project, uint amount);
@@ -13,6 +16,8 @@ contract Trustless is ERC1155URIStorage {
   event RefundIssued(address indexed issuedTo, uint project, uint amount);
   event MilestoneAchieved(uint project, uint amount);
   event ProjectCancelled(uint project);
+
+  Uint256Array.Uint256s fundraiseQueue;
 
   uint public projectCount;
   mapping(uint => Project) projects;
@@ -118,6 +123,26 @@ contract Trustless is ERC1155URIStorage {
     projects[projectCount] = newProject;
     emit ProjectCreated(msg.sender, projectCount, _goal);
     return projectCount;
+  }
+
+  function contribute(uint tokenId) public payable stillFundraising(tokenId) {
+    Project memory project = projects[tokenId];
+    require(msg.sender != project.fundraiser, "Fundraiser cannot contribute to own campaign");
+    require(msg.value >= 0.01 ether, "Minimum contribution amount is 0.01 ETH");
+
+    project.balance += msg.value;
+    emit Contribution(msg.sender, tokenId, msg.value);
+
+    if (msg.value > 0) {
+      _mint(msg.sender, tokenId, msg.value, '');
+      emit TokenIssued(msg.sender, tokenId, msg.value);
+    }
+
+    if (project.balance >= project.goal) {
+      project.fundraising = false;
+      fundraiseQueue.push(tokenId);
+      emit GoalAchieved(project.fundraiser, tokenId, project.goal);
+    }
   }
   /**
    * Receive function issue the basic token if msg.sender is paying directly
