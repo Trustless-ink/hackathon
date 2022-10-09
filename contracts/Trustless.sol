@@ -200,7 +200,7 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     for (uint i = 0; i < fundraiseQueue.size(); i++) {
       uint tokenId = fundraiseQueue.atIndex(i);
 
-      if (block.timestamp >= nextMilestone(tokenId)) {
+      if (tokenId > 0 && block.timestamp >= nextMilestone(tokenId)) {
         return (true, abi.encodePacked(tokenId));
       }
     }
