@@ -70,7 +70,7 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     return projects[tokenId].balance;
   }
 
-  function availableToWithdraw(uint tokenId) external view onlyFundraiser(tokenId) returns (uint) {
+  function availableToWithdraw(uint tokenId) external view returns (uint) {
     return projects[tokenId].availableToWithdraw;
   }
 

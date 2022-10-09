@@ -6,6 +6,8 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
 async function main() {
   const Trustless = await ethers.getContractFactory("Trustless");
 
@@ -15,6 +17,17 @@ async function main() {
 
   await trustless.deployed();
   console.log("Contract deployed to address:", trustless.address);
+  console.log("Waiting 30 seconds before verification...");
+
+  // Add a delay because if you try to verify too quickly,
+  // Etherscan won't find the contract
+  await delay(30000);
+
+  // Verify the contract on Etherscan
+  await hre.run("verify:verify", {
+    address: trustless.address,
+    constructorArguments: [],
+  });
 }
 
 // We recommend this pattern to be able to use async/await everywhere
