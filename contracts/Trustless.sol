@@ -178,9 +178,9 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
   function refund(uint tokenId) external onlyContributors(tokenId) {
     require(projects[tokenId].terminated, "Project is not terminated");
     uint amount = balanceOf(msg.sender, tokenId);
-
+    uint refund = refundBalance(tokenId);
     _burn(msg.sender, tokenId, amount);
-    (bool success, ) = msg.sender.call{value: refundBalance(tokenId)}("");
+    (bool success, ) = msg.sender.call{value: refund}("");
     require(success, "Transfer failed.");
 
     emit FundsReleased(msg.sender, tokenId, amount);
