@@ -57,7 +57,7 @@ const Sidebar = () => {
               <span>New Project</span>
             </li>
           </Link>
-          <Link to="/seeproject" style={{ textDecoration: 'none' }}>
+          <Link to="/seeprojects" style={{ textDecoration: 'none' }}>
             <li>
               <DashboardIcon className="icon" />
               <span>See Projects</span>

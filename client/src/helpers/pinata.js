@@ -16,7 +16,7 @@ export const pinJSONToIPFS = async (JSONBody) => {
     })
     .then(function (response) {
       const cid = new CID(response.data.IpfsHash);
-      const URI = cid.toV1();
+      const URI = cid.toV1().toString();
       return {
         success: true,
         URI: URI,
