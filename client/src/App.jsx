@@ -5,6 +5,8 @@ import Home from './pages/home/Home'
 import NewProject from './pages/NewProject'
 import FundProject from './pages/FundProject'
 import SeeProjects from './pages/SeeProjects'
+import InvestorPortal from './pages/InvestorPortal'
+import FounderPortal from './pages/FounderPortal'
 
 import './app.scss'
 
@@ -26,6 +28,8 @@ function App() {
             <Route path="/newproject" element={<NewProject />} />
             <Route path="/fundproject" element={<FundProject />} />
             <Route path="/seeprojects" element={<SeeProjects />} />
+            <Route path="/investorportal" element={<InvestorPortal />} />
+            <Route path="/founderportal" element={<FounderPortal />} />
           </Routes>
         </BrowserRouter>
       </div>

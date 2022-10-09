@@ -1,20 +1,26 @@
 import './single.scss'
 import Sidebar from '../components/sidebar/Sidebar'
-import { getAllProjects } from '../helpers/contractCalls'
-import { useState, useEffect } from 'react'
+import { getAllProjects, getInvestorProjects } from '../helpers/contractCalls'
+import { useState, useEffect, useContext } from 'react'
+import Context from '../helpers/Context'
 
 import { LinearProgress } from '@mui/material'
 
-const SeeProjects = () => {
+const InvestorPortal = () => {
+  const { contextValue } = useContext(Context)
+
   const [projects, setProjects] = useState([])
+  const [ownedProjects, setOwnedProjects] = useState([])
 
   useEffect(() => {
     const seeProjects = async () => {
+      const ownedProjects = await getInvestorProjects(contextValue)
       const projects = await getAllProjects()
+      setOwnedProjects(ownedProjects)
       setProjects(projects)
     }
     seeProjects()
-  }, [])
+  }, [contextValue])
 
   return (
     <div className="single">
@@ -22,33 +28,38 @@ const SeeProjects = () => {
       <div className="singleContainer">
         <div className="top">
           <center>
-            <div className="left">
-              <h1>Projects List</h1>
-              {projects.map((data, key) => (
+            <h1>Supported Projects</h1>
+            {ownedProjects.map((projectID, key) => (
+              <div className="left">
                 <div key={'project-list-' + key}>
+                  <h3>Project Details</h3>
                   <b>ID:</b>
                   {key + 1}
                   <br />
                   <b>Title:</b>
-                  {data.title}
+                  {projects[projectID - 1].title}
                   <br />
                   <b>Description:</b>
-                  {data.description}
+                  {projects[projectID - 1].description}
                   <br />
                   <b>Balance:</b>
-                  {data.projectBalance}
+                  {projects[projectID - 1].projectBalance}
                   <br />
                   <b>Funding Goals:</b>
-                  {data.projectGoal}
+                  {projects[projectID - 1].projectGoal}
                   <br />
                   <br />
                   <LinearProgress
                     variant="determinate"
-                    value={(data.projectBalance / data.projectGoal) * 100}
+                    value={
+                      (projects[projectID - 1].projectBalance /
+                        projects[projectID - 1].projectGoal) *
+                      100
+                    }
                   />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </center>
           <div className="right"></div>
         </div>
@@ -57,4 +68,4 @@ const SeeProjects = () => {
   )
 }
 
-export default SeeProjects
+export default InvestorPortal

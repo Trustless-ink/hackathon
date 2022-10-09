@@ -3,6 +3,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import StoreIcon from '@mui/icons-material/Store'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import InputOutlinedIcon from '@mui/icons-material/InputOutlined'
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
+import AnalyticsIcon from '@mui/icons-material/Analytics'
 
 import { Link } from 'react-router-dom'
 import Context from '../../helpers/Context'
@@ -68,6 +70,18 @@ const Sidebar = () => {
             <li>
               <CreditCardIcon className="icon" />
               <span>Fund Projects</span>
+            </li>
+          </Link>
+          <Link to="/founderportal" style={{ textDecoration: 'none' }}>
+            <li>
+              <NotificationsNoneOutlinedIcon className="icon" />
+              <span>Founder Portal</span>
+            </li>
+          </Link>
+          <Link to="/investorportal" style={{ textDecoration: 'none' }}>
+            <li>
+              <AnalyticsIcon className="icon" />
+              <span>Investor Portal</span>
             </li>
           </Link>
         </ul>
