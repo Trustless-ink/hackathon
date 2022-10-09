@@ -2,7 +2,8 @@
   "name": "hardhat-project",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "npx hardhat run scripts/deploy.js --network mumbai"
+    "deploy:goerli": "npx hardhat run scripts/deploy.js --network goerli",
+    "deploy:mumbai": "npx hardhat run scripts/deploy.js --network mumbai"
   },
   "devDependencies": {
     "@chainlink/contracts": "^0.5.1",

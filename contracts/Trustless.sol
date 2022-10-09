@@ -145,7 +145,7 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     require(msg.sender != project.fundraiser, "Fundraiser cannot contribute to own campaign");
     require(msg.value >= 0.01 ether, "Minimum contribution amount is 0.01 ETH");
 
-    project.balance += msg.value;
+    projects[tokenId].balance += msg.value;
     emit Contribution(msg.sender, tokenId, msg.value);
 
     if (msg.value > 0) {
@@ -153,8 +153,8 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
       emit TokenIssued(msg.sender, tokenId, msg.value);
     }
 
-    if (project.balance >= project.goal) {
-      project.fundraising = false;
+    if (projects[tokenId].balance >= project.goal) {
+      projects[tokenId].fundraising = false;
       fundraiseQueue.push(tokenId);
       emit GoalAchieved(project.fundraiser, tokenId, project.goal);
     }
@@ -213,13 +213,13 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
 
     if (project.active && !project.fundraising) {
       uint amount = project.balance / project.milestones;
-      project.balance -= amount;
-      project.availableToWithdraw += amount;
-      project.milestones -= 1;
-      project.timestamp = block.timestamp;
+      projects[tokenId].balance -= amount;
+      projects[tokenId].availableToWithdraw += amount;
+      projects[tokenId].milestones -= 1;
+      projects[tokenId].timestamp = block.timestamp;
 
       if (project.milestones < 1) {
-        project.active = false;
+        projects[tokenId].active = false;
         fundraiseQueue.remove(tokenId);
       }
       emit MilestoneAchieved(tokenId, amount);
