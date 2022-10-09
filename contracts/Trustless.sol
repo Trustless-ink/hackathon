@@ -3,9 +3,10 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "./Libs/UInt256Array.sol";
 
-contract Trustless is ERC1155URIStorage {
+contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
   using Uint256Array for Uint256Array.Uint256s;
 
   event ProjectCreated(address indexed fundraiser, uint project, uint amount);
@@ -142,6 +143,51 @@ contract Trustless is ERC1155URIStorage {
       project.fundraising = false;
       fundraiseQueue.push(tokenId);
       emit GoalAchieved(project.fundraiser, tokenId, project.goal);
+    }
+  }
+  /**
+   * withdraw milestone fundraised
+   */
+  function withdrawFunds(uint tokenId) external onlyFundraiser(tokenId) {
+    require(projects[tokenId].availableToWithdraw > 0, "No funds available");
+    uint amount = projects[tokenId].availableToWithdraw;
+    projects[tokenId].availableToWithdraw = 0;
+
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Transfer failed.");
+
+    emit FundsReleased(msg.sender, tokenId, amount);
+  }
+  /**
+   * Chainlink Upkeep logic
+   */
+  function checkUpkeep(bytes calldata checkData) external view returns (bool upkeepNeeded, bytes memory) {
+    for (uint i = 0; i < fundraiseQueue.size(); i++) {
+      uint tokenId = fundraiseQueue.atIndex(i);
+
+      if (block.timestamp >= nextMilestone(tokenId)) {
+        return (true, abi.encodePacked(tokenId));
+      }
+    }
+    return (false, checkData);
+  }
+
+  function performUpkeep(bytes calldata performData) external {
+    uint tokenId = uint256(bytes32(performData));
+    Project memory project = projects[tokenId];
+
+    if (project.active) {
+      uint amount = project.balance / project.milestones;
+      project.balance -= amount;
+      project.availableToWithdraw += amount;
+      project.milestones -= 1;
+      project.timestamp = block.timestamp;
+
+      if (project.milestones < 1) {
+        project.active = false;
+        fundraiseQueue.remove(tokenId);
+      }
+      emit MilestoneAchieved(tokenId, amount);
     }
   }
   /**
