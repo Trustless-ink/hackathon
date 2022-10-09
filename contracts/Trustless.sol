@@ -211,7 +211,7 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     uint tokenId = uint256(bytes32(performData));
     Project memory project = projects[tokenId];
 
-    if (project.active) {
+    if (project.active && !project.fundraising) {
       uint amount = project.balance / project.milestones;
       project.balance -= amount;
       project.availableToWithdraw += amount;
