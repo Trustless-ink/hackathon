@@ -141,11 +141,11 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
   }
 
   function contribute(uint tokenId) public payable stillFundraising(tokenId) {
-    Project memory project = projects[tokenId];
+    Project storage project = projects[tokenId];
     require(msg.sender != project.fundraiser, "Fundraiser cannot contribute to own campaign");
     require(msg.value >= 0.01 ether, "Minimum contribution amount is 0.01 ETH");
 
-    projects[tokenId].balance += msg.value;
+    project.balance += msg.value;
     emit Contribution(msg.sender, tokenId, msg.value);
 
     if (msg.value > 0) {
@@ -153,8 +153,8 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
       emit TokenIssued(msg.sender, tokenId, msg.value);
     }
 
-    if (projects[tokenId].balance >= project.goal) {
-      projects[tokenId].fundraising = false;
+    if (project.balance >= project.goal) {
+      project.fundraising = false;
       fundraiseQueue.push(tokenId);
       emit GoalAchieved(project.fundraiser, tokenId, project.goal);
     }
@@ -164,8 +164,9 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
    */
   function withdrawFunds(uint tokenId) external onlyFundraiser(tokenId) {
     require(projects[tokenId].availableToWithdraw > 0, "No funds available");
-    uint amount = projects[tokenId].availableToWithdraw;
-    projects[tokenId].availableToWithdraw = 0;
+    Project storage project = projects[tokenId];
+    uint amount = project.availableToWithdraw;
+    project.availableToWithdraw = 0;
 
     (bool success, ) = msg.sender.call{value: amount}("");
     require(success, "Transfer failed.");
@@ -178,9 +179,9 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
   function refund(uint tokenId) external onlyContributors(tokenId) {
     require(projects[tokenId].terminated, "Project is not terminated");
     uint amount = balanceOf(msg.sender, tokenId);
-    uint refund = refundBalance(tokenId);
+    uint refundAmount = refundBalance(tokenId);
     _burn(msg.sender, tokenId, amount);
-    (bool success, ) = msg.sender.call{value: refund}("");
+    (bool success, ) = msg.sender.call{value: refundAmount}("");
     require(success, "Transfer failed.");
 
     emit FundsReleased(msg.sender, tokenId, amount);
@@ -189,8 +190,9 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
    * Cancel Campaign
    */
   function cancel(uint tokenId) external onlyOwner {
-    projects[tokenId].active = false;
-    projects[tokenId].terminated = true;
+    Project storage project = projects[tokenId];
+    project.active = false;
+    project.terminated = true;
     fundraiseQueue.remove(tokenId);
   }
   /**
@@ -209,17 +211,17 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
 
   function performUpkeep(bytes calldata performData) external {
     uint tokenId = uint256(bytes32(performData));
-    Project memory project = projects[tokenId];
+    Project storage project = projects[tokenId];
 
     if (project.active && !project.fundraising) {
       uint amount = project.balance / project.milestones;
-      projects[tokenId].balance -= amount;
-      projects[tokenId].availableToWithdraw += amount;
-      projects[tokenId].milestones -= 1;
-      projects[tokenId].timestamp = block.timestamp;
+      project.balance -= amount;
+      project.availableToWithdraw += amount;
+      project.milestones -= 1;
+      project.timestamp = block.timestamp;
 
       if (project.milestones < 1) {
-        projects[tokenId].active = false;
+        project.active = false;
         fundraiseQueue.remove(tokenId);
       }
       emit MilestoneAchieved(tokenId, amount);
