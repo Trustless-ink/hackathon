@@ -94,6 +94,20 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     return projects[tokenId].active;
   }
 
+  function refundBalance(uint tokenId) public view returns (uint) {
+    require(projects[tokenId].terminated, "Project is not terminated");
+    uint amount = balanceOf(msg.sender, tokenId);
+    uint refundAmount;
+    Project memory project = projects[tokenId];
+
+    if (project.balance < project.goal) {
+      uint ratio = project.balance / project.goal;
+      refundAmount = ratio * amount / 100;
+    } else {
+      refundAmount = amount;
+    }
+    return refundAmount;
+  }
   /**
    * Methods
    */
@@ -157,6 +171,27 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
     require(success, "Transfer failed.");
 
     emit FundsReleased(msg.sender, tokenId, amount);
+  }
+  /**
+   * Withdraw Refund
+   */
+  function refund(uint tokenId) external onlyContributors(tokenId) {
+    require(projects[tokenId].terminated, "Project is not terminated");
+    uint amount = balanceOf(msg.sender, tokenId);
+
+    _burn(msg.sender, tokenId, amount);
+    (bool success, ) = msg.sender.call{value: refundBalance(tokenId)}("");
+    require(success, "Transfer failed.");
+
+    emit FundsReleased(msg.sender, tokenId, amount);
+  }
+  /**
+   * Cancel Campaign
+   */
+  function cancel(uint tokenId) external onlyOwner {
+    projects[tokenId].active = false;
+    projects[tokenId].terminated = true;
+    fundraiseQueue.remove(tokenId);
   }
   /**
    * Chainlink Upkeep logic

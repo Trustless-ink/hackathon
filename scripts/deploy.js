@@ -7,7 +7,14 @@
 const hre = require("hardhat");
 
 async function main() {
-  
+  const Trustless = await ethers.getContractFactory("Trustless");
+
+  // Start deployment, returning a promise that resolves to a contract object
+  console.log("Deploying Contract...");
+  const trustless = await Trustless.deploy();
+
+  await trustless.deployed();
+  console.log("Contract deployed to address:", trustless.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
