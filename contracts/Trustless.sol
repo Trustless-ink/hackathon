@@ -164,8 +164,9 @@ contract Trustless is ERC1155URIStorage, Ownable, AutomationCompatible {
    */
   function withdrawFunds(uint tokenId) external onlyFundraiser(tokenId) {
     require(projects[tokenId].availableToWithdraw > 0, "No funds available");
-    uint amount = projects[tokenId].availableToWithdraw;
-    projects[tokenId].availableToWithdraw = 0;
+    Project storage project = projects[tokenId];
+    uint amount = project.availableToWithdraw;
+    project.availableToWithdraw = 0;
 
     (bool success, ) = msg.sender.call{value: amount}("");
     require(success, "Transfer failed.");
